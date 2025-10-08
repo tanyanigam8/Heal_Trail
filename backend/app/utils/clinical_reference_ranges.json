@@ -1,0 +1,9 @@
+{
+    "Hemoglobin": [13.0, 17.0],
+    "Platelets": [150, 450],
+    "WBC": [4.0, 11.0],
+    "RBC": [4.5, 5.9],
+    "Glucose": [70, 99],
+    "Uric Acid": [3.5, 7.2],
+    "Creatinine": [0.6, 1.3]
+}
