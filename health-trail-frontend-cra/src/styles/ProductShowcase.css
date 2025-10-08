@@ -1,0 +1,38 @@
+/* === Product-specific backgrounds === */
+.bg-appointment-card {
+  background: url("../products/bg-appointment.png") center/cover no-repeat;
+}
+
+.bg-qtrail-card {
+  background: url("../products/bg-qtrail.png") center/cover no-repeat;
+}
+
+.bg-labpanel-card {
+  background: url("../products/bg-lab.png") center/cover no-repeat;
+}
+
+.bg-doctor-card {
+  background: url("../products/bg-doctor.png") center/cover no-repeat;
+}
+
+.bg-gym-card {
+  background: url("../products/bg-gym.png") center/cover no-repeat;
+}
+
+.bg-yog-card {
+  background: url("../products/bg-yog.png") center/cover no-repeat;
+}
+
+.bg-pharma-card {
+  background: url("../products/bg-pharma.png") center/cover no-repeat;
+}
+
+/* Shared card styling */
+.wave-card {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.25);
+  outline: 1px solid rgba(15, 23, 42, 0.08);
+}

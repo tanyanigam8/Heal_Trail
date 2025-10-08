@@ -1,0 +1,42 @@
+.home-hero {
+  background: #ffffff; /* solid white background */
+}
+
+.pill-gradient {
+  background: linear-gradient(135deg, #5b8cff 0%, #7a5cff 35%, #ff6ec7 100%);
+  color: white; /* keep text visible */
+}
+/* AppointmentPanel */
+.bg-appointment {
+  background: linear-gradient(135deg, #f4fbf6 0%, #eaf7ef 100%);
+}
+
+/* QTrail */
+.bg-qtrail {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e5f1ff 100%);
+}
+
+/* LabPanel */
+.bg-labpanel {
+  background: linear-gradient(135deg, #fff0f6 0%, #ffe6f0 100%);
+}
+
+/* DoctorPanel */
+.bg-doctorpanel {
+  background: linear-gradient(135deg, #f0fbff 0%, #e6f6ff 100%);
+}
+
+/* GymPanel */
+.bg-gympanel {
+  background: linear-gradient(135deg, #fff8f0 0%, #ffefdf 100%);
+}
+
+/* YogPanel */
+.bg-yogpanel {
+  background: linear-gradient(135deg, #f9f6f1 0%, #f3eee5 100%);
+}
+
+/* PharmaPanel */
+.bg-pharmapanel {
+  background: linear-gradient(135deg, #fff0f2 0%, #ffe6e9 100%);
+}
