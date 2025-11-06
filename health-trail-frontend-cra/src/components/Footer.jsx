@@ -27,18 +27,52 @@ export default function Footer() {
 
           {/* Social links */}
           <div className="mt-4 flex gap-4 text-xl text-slate-700">
-            <a href="#" className="hover:text-indigo-600"><FaFacebookF /></a>
-            <a href="#" className="hover:text-indigo-600"><FaYoutube /></a>
-            <a href="#" className="hover:text-indigo-600"><FaLinkedinIn /></a>
-            <a href="#" className="hover:text-indigo-600"><FaInstagram /></a>
+            <a
+              href="https://www.facebook.com/learntrail"
+              className="hover:text-indigo-600"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaFacebookF />
+            </a>
+            <a
+              href="https://www.youtube.com/@learntrail"
+              className="hover:text-indigo-600"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaYoutube />
+            </a>
+            <a
+              href="http://linkedin.com/company/thelearntrail/"
+              className="hover:text-indigo-600"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaLinkedinIn />
+            </a>
+            <a
+              href="https://www.instagram.com/learntrail/"
+              className="hover:text-indigo-600"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaInstagram />
+            </a>
           </div>
         </div>
 
         {/* Middle section */}
         <div className="flex flex-col gap-2 text-sm md:items-center">
-          <a href="#" className="hover:underline">Become a Partner</a>
-          <a href="#" className="hover:underline">Privacy Policy</a>
-          <a href="#" className="hover:underline">Terms of Use</a>
+          <a href="#" className="hover:underline">
+            Become a Partner
+          </a>
+          <a href="#" className="hover:underline">
+            Privacy Policy
+          </a>
+          <a href="#" className="hover:underline">
+            Terms of Use
+          </a>
         </div>
 
         {/* Right section */}
@@ -47,20 +81,28 @@ export default function Footer() {
           <div className="flex flex-col gap-3">
             {/* Google Play */}
             <a
-              href="https://play.google.com/store/apps/details?id=com.example.healtrail" // 🔗 replace with your real Play Store link
+              href="https://play.google.com/store/apps/details?id=com.setukrite.heal_trail"
               target="_blank"
               rel="noreferrer"
             >
-              <img src="/google-play.avif" alt="Get it on Google Play" className="h-12" />
+              <img
+                src="/google-play.avif"
+                alt="Get it on Google Play"
+                className="h-12"
+              />
             </a>
 
             {/* App Store */}
             <a
-              href="https://apps.apple.com/in/app/example-healtrail/id123456789" // 🔗 replace with your real App Store link
+              href="https://apps.apple.com/in/app/example-healtrail/id123456789"
               target="_blank"
               rel="noreferrer"
             >
-              <img src="/app-store.avif" alt="Download on the App Store" className="h-12" />
+              <img
+                src="/app-store.avif"
+                alt="Download on the App Store"
+                className="h-12"
+              />
             </a>
           </div>
         </div>
@@ -68,7 +110,7 @@ export default function Footer() {
 
       {/* Bottom text */}
       <div className="mt-10 text-center text-xs text-slate-500">
-        © 2024 HealTrail. Powered by{" "}
+        © {new Date().getFullYear()} HealTrail. Powered by{" "}
         <a
           href="https://setukrite.com"
           className="text-indigo-600 hover:underline"
