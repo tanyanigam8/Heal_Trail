@@ -107,10 +107,11 @@ function MenuButton({ item, idx, open, setOpen }) {
   );
 }
 
-export default function Navbar() {
+export default function Navbar({ userDisplay: userDisplayProp, onLogout: onLogoutProp }) {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(null);
   const navRef = useRef(null);
+  const [userDisplay, setUserDisplay] = useState(null);
 
   // Close menus on outside click / Esc
   useEffect(() => {
@@ -124,6 +125,42 @@ export default function Navbar() {
       document.removeEventListener("keydown", esc);
     };
   }, []);
+
+  // keep local display name in sync with prop or localStorage
+  useEffect(() => {
+    if (userDisplayProp) {
+      setUserDisplay(userDisplayProp);
+      return;
+    }
+    try {
+      const ud = localStorage.getItem("user_display");
+      if (ud) setUserDisplay(ud);
+      else setUserDisplay(null);
+    } catch {
+      setUserDisplay(null);
+    }
+  }, [userDisplayProp]);
+
+  const handleLogout = () => {
+    // prefer parent handler if provided
+    if (typeof onLogoutProp === "function") {
+      try {
+        onLogoutProp();
+      } catch {
+        // fall back to default behavior below
+      }
+      return;
+    }
+
+    // fallback logout: clear localStorage and navigate to landing
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("user_display");
+    } catch {}
+    navigate("/");
+    window.location.reload(); // ensure global state (axios headers) reset
+  };
 
   return (
     <nav
@@ -169,18 +206,32 @@ export default function Navbar() {
 
       {/* Auth (right) */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate("/login")}
-          className="px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold hover:opacity-90 transition"
-        >
-          Login
-        </button>
-        <button
-          onClick={() => navigate("/register")}
-          className="px-4 py-2 rounded-lg border border-slate-300 text-slate-900 font-semibold hover:bg-slate-100 transition"
-        >
-          Sign Up
-        </button>
+        {userDisplay ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-slate-700">Hi, {userDisplay}</span>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 rounded bg-white/10 text-slate-900 border border-slate-200 hover:bg-white/20 transition"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold hover:opacity-90 transition"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => navigate("/register")}
+              className="px-4 py-2 rounded-lg border border-slate-300 text-slate-900 font-semibold hover:bg-slate-100 transition"
+            >
+              Sign Up
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );

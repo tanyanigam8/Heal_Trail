@@ -1,0 +1,97 @@
+/* src/styles/typography.css */
+
+/* Import Google Fonts (since you don't have index.html) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Global Typography ---------- */
+
+/* Font stack — Poppins for headings, Inter for body (fallbacks included) */
+:root {
+  --font-heading: "Poppins", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Global base styles */
+html, body, #root {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: white;
+}
+
+/* Heading scale */
+h1 {
+  @apply text-4xl md:text-5xl font-extrabold leading-tight text-slate-900;
+  font-family: var(--font-heading);
+}
+h2 {
+  @apply text-3xl md:text-4xl font-semibold leading-tight text-slate-900;
+  font-family: var(--font-heading);
+}
+h3 {
+  @apply text-2xl md:text-3xl font-semibold leading-snug text-slate-800;
+  font-family: var(--font-heading);
+}
+h4 {
+  @apply text-xl font-semibold text-slate-800;
+  font-family: var(--font-heading);
+}
+
+/* Paragraph / base */
+p, .body-text {
+  @apply text-base md:text-lg leading-relaxed text-slate-700;
+}
+
+/* Small / caption */
+.small, small, .caption {
+  @apply text-sm text-slate-600;
+}
+
+/* Buttons */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium text-sm;
+}
+
+/* Inputs */
+input, textarea, select {
+  @apply font-sans text-base text-slate-800;
+}
+
+/* Utility aliases for custom headings */
+.h1 {
+  @apply text-4xl md:text-5xl font-extrabold leading-tight text-slate-900;
+  font-family: var(--font-heading);
+}
+.h2 {
+  @apply text-3xl md:text-4xl font-semibold leading-tight text-slate-900;
+  font-family: var(--font-heading);
+}
+.h3 {
+  @apply text-2xl md:text-3xl font-semibold leading-snug text-slate-800;
+  font-family: var(--font-heading);
+}
+.lead {
+  @apply text-lg text-slate-700;
+}
+
+/* Links: removed global anchor rule, use .text-link where a blue link is desired */
+.text-link {
+  @apply text-sky-600 hover:underline;
+}
+
+/* Dark-card headings: ensure headings inside dark backgrounds are visible */
+.dark-card h1,
+.dark-card h2,
+.dark-card h3,
+.dark-card h4 {
+  color: #ffffff !important;
+}
+
+/* Consistent white card base */
+.wave-card {
+  @apply bg-white;
+}

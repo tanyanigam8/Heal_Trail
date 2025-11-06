@@ -1,24 +1,25 @@
 // src/components/AuthForm.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Props:
- * - mode: "login" | "register"   // preferred
- * - isLogin: boolean             // legacy support
- * - onSuccessPath: string        // where to go after login (default: "/account")
- * - containerClassName: string   // optional wrapper class override
+ * - mode: "login" | "register"
+ * - onSuccessPath: default "/" (landing)
+ * - onLogin: optional callback(access_token, user_display)
+ * - allowEmailLogin: boolean
  */
 export default function AuthForm({
   mode,
   isLogin: isLoginProp,
-  onSuccessPath = "/account",
+  onSuccessPath = "/",
+  onLogin,
+  allowEmailLogin = false,
   containerClassName = "p-4 bg-white rounded shadow-md",
 }) {
-  // Derive final mode:
-  // 1) If `mode` prop is provided, use it.
-  // 2) Else fall back to legacy boolean `isLogin`.
-  // 3) Default to "login" if neither provided.
+  const navigate = useNavigate();
+
   const derivedIsLogin =
     typeof mode === "string"
       ? mode === "login"
@@ -32,15 +33,41 @@ export default function AuthForm({
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // If parent switches route (/login <-> /register), clear errors/fields
   useEffect(() => {
     setError("");
     setPassword("");
-    // Keep username when switching? Usually safe to keep; clear email only for register mode
-    if (derivedIsLogin) {
+    if (derivedIsLogin && !allowEmailLogin) setEmail("");
+    if (!derivedIsLogin) {
       setEmail("");
+      setUsername("");
+      setPassword("");
     }
-  }, [derivedIsLogin]);
+  }, [derivedIsLogin, allowEmailLogin]);
+
+  const formatServerError = (maybeErr) => {
+    if (!maybeErr) return "Unknown error";
+    if (typeof maybeErr === "string") return maybeErr;
+    if (Array.isArray(maybeErr)) {
+      return maybeErr
+        .map((it) => {
+          if (typeof it === "string") return it;
+          if (it.msg) {
+            const loc = Array.isArray(it.loc) ? it.loc.join(".") : "";
+            return loc ? `${loc}: ${it.msg}` : it.msg;
+          }
+          return JSON.stringify(it);
+        })
+        .join(" / ");
+    }
+    if (maybeErr.detail) return formatServerError(maybeErr.detail);
+    if (maybeErr.message) return maybeErr.message;
+    if (maybeErr.error) return maybeErr.error;
+    try {
+      return JSON.stringify(maybeErr);
+    } catch {
+      return String(maybeErr);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,40 +75,86 @@ export default function AuthForm({
     setSubmitting(true);
 
     const endpoint = derivedIsLogin ? "/auth/login" : "/auth/register";
-    const payload = derivedIsLogin
-      ? { username, password }
-      : { email, password, username };
+    let payload;
+
+    if (derivedIsLogin) {
+      if (allowEmailLogin) {
+        if (!email || !email.trim()) {
+          setError("Please enter your email.");
+          setSubmitting(false);
+          return;
+        }
+        payload = { email: email.trim(), password };
+      } else {
+        if (!username || !username.trim()) {
+          setError("Please enter your username.");
+          setSubmitting(false);
+          return;
+        }
+        payload = { username: username.trim(), password };
+      }
+    } else {
+      if (!username || !username.trim()) {
+        setError("Please enter a username (Full Name).");
+        setSubmitting(false);
+        return;
+      }
+      if (!email || !email.trim()) {
+        setError("Please enter an email.");
+        setSubmitting(false);
+        return;
+      }
+      payload = { username: username.trim(), email: email.trim(), password };
+    }
 
     try {
-      const { data } = await axios.post(
-        `http://localhost:8000${endpoint}`,
-        payload
-      );
+      const { data } = await axios.post(`http://localhost:8000${endpoint}`, payload);
 
       if (derivedIsLogin) {
         const { access_token, user_id } = data || {};
-        if (!access_token) {
-          throw new Error("No access token received.");
+        if (!access_token) throw new Error("No access token received.");
+
+        // build a display name: prefer username (if used), else email, else "User"
+        const userDisplay =
+          (payload.username && payload.username.trim()) ||
+          (payload.email && payload.email.trim()) ||
+          "User";
+
+        // Persist token, user id and display name
+        try {
+          localStorage.setItem("token", access_token);
+          if (user_id !== undefined && user_id !== null) {
+            localStorage.setItem("user_id", String(user_id));
+          }
+          localStorage.setItem("user_display", userDisplay);
+        } catch (err) {
+          // ignore storage errors
+          // eslint-disable-next-line no-console
+          console.warn("storage error:", err);
         }
 
-        localStorage.setItem("token", access_token);
-        if (user_id !== undefined && user_id !== null) {
-          localStorage.setItem("user_id", String(user_id));
+        // notify parent (App) to update in-memory state if provided
+        if (typeof onLogin === "function") {
+          try {
+            onLogin(access_token, userDisplay);
+          } catch (cbErr) {
+            // do not crash if callback fails
+            // eslint-disable-next-line no-console
+            console.warn("onLogin callback error:", cbErr);
+          }
         }
 
-        // Navigate to the desired page after successful login
-        window.location.href = onSuccessPath; // default: "/account"
+        // Navigate inside SPA to landing page (default "/")
+        navigate(onSuccessPath || "/");
       } else {
-        // Registration successful → send user to login page
         alert("Registration successful! Please login.");
-        window.location.href = "/login";
+        navigate("/login");
       }
     } catch (err) {
+      const serverData = err?.response?.data;
       const msg =
-        err?.response?.data?.detail ||
-        err?.message ||
-        "Something went wrong. Please try again.";
-      setError(msg);
+        (serverData && formatServerError(serverData)) || err?.message || "Network or server error — check backend";
+      setError(String(msg));
     } finally {
       setSubmitting(false);
     }
@@ -89,33 +162,50 @@ export default function AuthForm({
 
   return (
     <div className={containerClassName}>
-      <h2 className="text-xl font-bold mb-4">
-        {derivedIsLogin ? "Login" : "Register"}
-      </h2>
+      <h2 className="text-xl font-bold mb-4">{derivedIsLogin ? "Login" : "Register"}</h2>
 
       <form onSubmit={handleSubmit}>
-        {error && (
-          <p className="text-red-500 text-sm mb-3 font-medium">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mb-3 font-medium">{String(error)}</p>}
 
-        <input
-          type="text"
-          placeholder="Username"
-          className="mb-2 p-2 border w-full rounded"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-
-        {!derivedIsLogin && (
-          <input
-            type="email"
-            placeholder="Email"
-            className="mb-2 p-2 border w-full rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        {derivedIsLogin ? (
+          allowEmailLogin ? (
+            <input
+              type="email"
+              placeholder="Email"
+              className="mb-2 p-2 border w-full rounded"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          ) : (
+            <input
+              type="text"
+              placeholder="Username"
+              className="mb-2 p-2 border w-full rounded"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          )
+        ) : (
+          <>
+            <input
+              type="text"
+              placeholder="Username (Full Name)"
+              className="mb-2 p-2 border w-full rounded"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              className="mb-2 p-2 border w-full rounded"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </>
         )}
 
         <input
@@ -130,17 +220,9 @@ export default function AuthForm({
         <button
           type="submit"
           disabled={submitting}
-          className={`bg-green-600 text-white px-4 py-2 rounded w-full ${
-            submitting ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          className={`bg-green-600 text-white px-4 py-2 rounded w-full ${submitting ? "opacity-70 cursor-not-allowed" : ""}`}
         >
-          {submitting
-            ? derivedIsLogin
-              ? "Logging in..."
-              : "Registering..."
-            : derivedIsLogin
-            ? "Login"
-            : "Register"}
+          {submitting ? (derivedIsLogin ? "Logging in..." : "Registering...") : derivedIsLogin ? "Login" : "Register"}
         </button>
       </form>
     </div>

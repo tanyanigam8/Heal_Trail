@@ -25,7 +25,7 @@ export default function AnimatedBoxes({ onOpenAuth }) {
         </div>
 
         {/* RIGHT CARD */}
-        <div className="rounded-2xl bg-black text-white shadow-xl p-6 md:p-8 max-w-md w-full mx-auto relative overflow-hidden">
+        <div className="dark-card rounded-2xl bg-black text-white shadow-xl p-6 md:p-8 max-w-md w-full mx-auto relative overflow-hidden">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
             Let&apos;s fix confusions.
           </h2>
